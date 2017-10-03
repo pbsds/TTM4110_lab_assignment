@@ -1,37 +1,119 @@
 BEGIN
     EXTERNAL CLASS demos = "../../demos.atr";
     demos BEGIN
+        INTEGER num_of_BS, num_of_meters, meters_per_BS;
         REAL p_r;
-        REAL mu_n, mu_c, mu_rc, mu_s, mu_rs, mu_sw;
-        REAL lambda_fc, lambda_fs;
+        REAL mu_w, mu_n, mu_c, mu_rc, mu_s, mu_rs, mu_sw;
+        REAL lambda, lambda_fc, lambda_fs;
         Ref(RDist) t_w, t_n, t_c, t_rc, t_s, t_rs, t_sw;
+        Ref(IDist) packets_to_create;
+        Ref(BDist) loss;
         
+        Ref(Tally) packet_dlys;
+        Ref(Count) packets_total, packets_success, packets_dropped, packet_dly_lt_200;
         
-        Entity CLASS meter();
+        Entity CLASS BS();
         BEGIN
+            REAL n, i, j;
             LOOP:
-                
+                hold(1);
+                FOR i:=1 STEP 1 UNTIL meters_per_BS DO ! for each meter DO;
+                BEGIN
+                    n := packets_to_create.sample;
+                    FOR j:=1 STEP 1 UNTIL n DO ! send packets for this meter ;
+                    BEGIN
+                        new Packet("packet").schedule(NOW);
+                    END;
+                END;
             REPEAT;
         END;
         
-        Entity CLASS packet();
+        Entity CLASS Packet();
         BEGIN
-            BS:
+            REAL start, dly;
+            start := TIME;
+            to_bs:
+                IF loss.sample THEN GOTO dropped;
+                hold(t_w.sample);
+            in_bs:
+                ! godly processing speed ;
+            to_c:
+                hold(t_n.sample);
+            in_c:
+                hold(t_c.sample);
+                ! todo: add c fail ;
+            to_server:
+                ! speed of light ;
+            in_server:
+                hold(t_s.sample);
+                ! todo: add server fail ;
+            success:
+                dly := TIME - start;
                 
-            C:
+                packets_success.update(1);
+                packet_dlys.update(dly);
+                IF dly < 200 THEN packet_dly_lt_200.update(1);
                 
-            SERVER:
-                
-            SUCCESS:
-                
-            DROPPED:
-                
-            TERMINATE:
-                ! let me just die ;
+                GOTO terminate;
+            dropped:
+                packets_dropped.update(1);
+            terminate:
+                packets_total.update(1);
+                ! just let me die ;
+        END;
+
+        REAL i;
+        
+        BEGIN ! set constants;
+            p_r := 0.95;
+            
+            ! these are in ms ;
+            mu_w  := 110;
+            mu_n  := 20;
+            mu_c  := 0.1;
+            mu_rc := 1; ! unset ;
+            mu_s  := 2;
+            mu_rs := 1; ! unset ;
+            mu_sw := 1; ! unset ;
+            
+            lambda    := 0.001;! pkt/ms ;
+            lambda_fc := 1; ! unset ;
+            lambda_fs := 1; ! unset ;
+            
+            num_of_BS := 50;
+            num_of_meters := 1000;
+            meters_per_BS := num_of_meters / num_of_BS;
         END;
         
+        BEGIN ! define distributions;
+            packets_to_create :- NEW Poisson("pkts_2_make", 1);
+            
+            loss :- new Draw("loss", 1 - p_r);
+            
+            t_w  :- new Constant("T_w", 1/mu_w);
+            t_n  :- new NegExp("T_n",  1/mu_n);
+            t_c  :- new NegExp("T_c",  1/mu_c);
+            t_rc :- new NegExp("T_rc", 1/mu_rc);
+            t_s  :- new NegExp("T_s",  1/mu_s);
+            t_rs :- new NegExp("T_rs", 1/mu_rs);
+            t_sw :- new NegExp("T_sw", 1/mu_sw);
+        END;
         
-        outText("test");
+        BEGIN ! define statistics and resources ;
+            packet_dlys :- new Tally("pkt_dly");
+            
+            packets_total     :- new Count("pkt_tot");
+            packets_success   :- new Count("pkt_suc");
+            packets_dropped   :- new Count("pkt_fail");
+            packet_dly_lt_200 :- new Count("pkt_lt2");
+        END;
+        
+        For i:=1 step 1 until 10 do
+        BEGIN
+            Outint(packets_to_create.sample, 10);
+            outImage;
+        END;
+        outText("PAENIS!!");
         outImage;
     END;
 END
