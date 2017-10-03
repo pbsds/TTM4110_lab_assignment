@@ -12,57 +12,69 @@ BEGIN
         Ref(Tally) packet_dlys;
         Ref(Count) packets_total, packets_success, packets_dropped, packet_dly_lt_200;
         
+        Ref(Res) c_queue, server1_queue, server2_queue, server3_queue;
+        
         Entity CLASS BS();
         BEGIN
             REAL n, i, j;
+            Ref(Res) bs_queue;
             LOOP:
-                hold(1);
+                bs_queue :- new Res("BS", 1);
+                
+                hold(1); ! 1 ms step is maybe a bit much ;
+                
                 FOR i:=1 STEP 1 UNTIL meters_per_BS DO ! for each meter DO;
                 BEGIN
                     n := packets_to_create.sample;
                     FOR j:=1 STEP 1 UNTIL n DO ! send packets for this meter ;
                     BEGIN
-                        new Packet("packet").schedule(NOW);
+                        new Packet("packet", bs_queue).schedule(NOW);
                     END;
                 END;
             REPEAT;
         END;
         
-        Entity CLASS Packet();
+        Entity CLASS Packet(bs_queue);
+            Ref(Res) bs_queue;
         BEGIN
             REAL start, dly;
             start := TIME;
-            to_bs:
-                IF loss.sample THEN GOTO dropped;
+            To_bs:
+                IF loss.sample THEN GOTO Dropped;
                 hold(t_w.sample);
-            in_bs:
-                ! godly processing speed ;
-            to_c:
+            In_bs:
+                bs_queue.acquire(1);
+                ! godly fucking processing speed ;
+                bs_queue.release(1);
+            To_c:
                 hold(t_n.sample);
-            in_c:
+            In_c:
+                c_queue.acquire(1);
                 hold(t_c.sample);
+                c_queue.release(1);
+                
                 ! todo: add c fail ;
-            to_server:
+            To_server:
                 ! speed of light ;
-            in_server:
+            In_server:
+                server1_queue.acquire(1);! todo: choose server ;
                 hold(t_s.sample);
+                server1_queue.release(1);
                 ! todo: add server fail ;
-            success:
+            Success:
                 dly := TIME - start;
                 
                 packets_success.update(1);
                 packet_dlys.update(dly);
                 IF dly < 200 THEN packet_dly_lt_200.update(1);
                 
-                GOTO terminate;
-            dropped:
+                GOTO Terminate;
+            Dropped:
                 packets_dropped.update(1);
-            terminate:
+            Terminate:
                 packets_total.update(1);
                 ! just let me die ;
         END;
-
-        REAL i;
         
         BEGIN ! set constants;
             p_r := 0.95;
@@ -106,14 +118,14 @@ BEGIN
             packets_success   :- new Count("pkt_suc");
             packets_dropped   :- new Count("pkt_fail");
             packet_dly_lt_200 :- new Count("pkt_lt2");
+            
+            c_queue :- new Res("C", 1);
+            server1_queue :- new Res("Server1", 1);
+            server2_queue :- new Res("Server2", 1);
+            server3_queue :- new Res("Server3", 1);
         END;
         
-        For i:=1 step 1 until 10 do
-        BEGIN
-            Outint(packets_to_create.sample, 10);
-            outImage;
-        END;
-        outText("PAENIS!!");
-        outImage;
+        ! code here plz ;
+        
     END;
 END
