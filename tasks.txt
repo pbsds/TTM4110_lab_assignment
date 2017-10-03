@@ -1,0 +1,22 @@
+Task 1:
+    1)  The system state is the current time, all live packets,
+        and the state of each BS, server and the C
+        
+    2)  todo
+        
+    3)  in progress
+        
+    4)  
+        
+    5)  
+        
+
+Task 2:
+    1)  
+        
+    2)  
+        
+    3)  
+        
+    4)  
+        
