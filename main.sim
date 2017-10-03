@@ -1,0 +1,6 @@
+BEGIN
+    EXTERNAL CLASS demos = "../../demos.atr";
+    demos BEGIN
+        
+    END;
+END
