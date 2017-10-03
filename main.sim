@@ -1,6 +1,37 @@
 BEGIN
     EXTERNAL CLASS demos = "../../demos.atr";
     demos BEGIN
+        REAL p_r;
+        REAL mu_n, mu_c, mu_rc, mu_s, mu_rs, mu_sw;
+        REAL lambda_fc, lambda_fs;
+        Ref(RDist) t_w, t_n, t_c, t_rc, t_s, t_rs, t_sw;
         
+        
+        Entity CLASS meter();
+        BEGIN
+            LOOP:
+                
+            REPEAT;
+        END;
+        
+        Entity CLASS packet();
+        BEGIN
+            BS:
+                
+            C:
+                
+            SERVER:
+                
+            SUCCESS:
+                
+            DROPPED:
+                
+            TERMINATE:
+                ! let me just die ;
+        END;
+        
+        
+        outText("test");
+        outImage;
     END;
 END
