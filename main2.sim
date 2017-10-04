@@ -1,0 +1,103 @@
+BEGIN
+    EXTERNAL CLASS demos = "../../demos.atr";
+    demos BEGIN
+        ! 1 time unit is 1 ms ;
+        REAL mu_rc, mu_rs, mu_sw;
+        REAL lambda_fc, lambda_fs;
+        Ref(RDist) t_rc, t_rs, t_sw;
+        Ref(BDist) do_controller_break, do_server_break;
+        
+        Ref(Res) active_controllers, active_servers, active_whole;
+        INTEGER active_servers_goal;
+        
+        Entity CLASS Controller();
+        BEGIN
+            Dead:
+                hold(t_rc.sample);
+            Active:
+                active_controllers.acquire(1);
+                LOOP:
+                    hold(1);
+                    IF do_controller_break.sample THEN BEGIN
+                        active_controllers.release(1);
+                        GOTO Dead;
+                    END;
+                REPEAT;
+        END;
+        
+        Entity CLASS Server();
+        BEGIN
+            REAL switchtime, i;
+            Dead:
+                hold(t_rs.sample);
+            Passive:
+                while active_servers.avail = 0 DO BEGIN
+                    hold(1);
+                    IF do_server_break.sample THEN GOTO Dead;
+                END;
+            BecomeActive:
+                ! i refuse to use interrupts again ;
+                switchtime := t_sw.sample;
+                for i:=1 STEP 1 UNTIL switchtime DO BEGIN 
+                    hold(1);
+                    IF do_server_break.sample THEN GOTO Dead;
+                    IF active_servers.avail = 0 THEN GOTO Passive;
+                END;
+            Active:
+                IF active_servers.avail = 0 THEN GOTO Passive;
+                active_servers.acquire(1);
+                LOOP:
+                    hold(1);
+                    IF do_server_break.sample THEN BEGIN
+                        active_servers.release(1);
+                        GOTO Dead;
+                    END;
+                REPEAT;
+        END;
+        
+        Entity CLASS MonitorDaemon();
+        BEGIN
+            Down:
+                hold(1);
+                IF active_servers.avail = 0 AND active_controllers.avail = 0 THEN GOTO AllActive;
+                GOTO Down;
+            AllActive:
+                active_whole.acquire(1);
+                hold(1);
+                active_whole.release(1);
+                IF active_servers.avail = 0 AND active_controllers.avail = 0 THEN GOTO AllActive;
+                GOTO Down;
+        END;
+        
+        BEGIN ! constants ;
+            mu_rs := 1;
+            mu_rc := 2;
+            mu_sw := 5;
+            lambda_fs := 0.01;
+            lambda_fc := 0.01;
+            active_servers_goal := 2;
+        END;
+        
+        BEGIN ! init distributions and statistics ;
+            t_rc :- new NegExp("T_rc", mu_rc);
+            t_rs :- new NegExp("T_rs", mu_rs);
+            t_sw :- new NegExp("T_sw", mu_sw);
+            do_controller_break :- new Draw("lambda_fc", lambda_fc);
+            do_server_break :- new Draw("lambda_fs", lambda_fs);
+            
+            
+            active_controllers :- new Res("active_controllers", 1);
+            active_servers :- new Res("active_servers", 2);
+            active_whole :- new Res("active_whole", 1);
+        END;
+        
+        NEW Controller("Controller").schedule(NOW);
+        NEW Server("Server1").schedule(NOW);
+        NEW Server("Server2").schedule(NOW);
+        NEW Server("Server3").schedule(NOW);
+        NEW MonitorDaemon("daemon").schedule(NOW);
+        
+        !hold(1000*60*60*24);
+        hold(1000*60*60*2);
+    END;
+END
