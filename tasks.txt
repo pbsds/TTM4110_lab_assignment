@@ -1,8 +1,24 @@
 Task 1:
-    1)  The system state is the current time, all live packets,
-        and the state of each BS, server and the C
+    1)  The system state consists of the current time, all live packets and their state,
+        the state of every BS and server, and the state of the controller. For the BSs,
+        servers and controller we only need to know if they are currently busy processing,
+        as we assume they are always working in this section.
+        Events are:
+        -Packet sent from meter
+        -Packet arrived at BS
+        -Packet lost on the way to BS
+        -Packet processed in BS
+        -Packet sent from BS to C
+        -Packet arrived at C
+        -Packet processed in C
+        -Packet sent from C to server
+        -Packet arrived at server
+        -Packet processed in server (success)
         
-    2)  todo
+    2)  We chose to make the Base Station entity handle packet scheduling instead of
+        creating many Smart Meter entities as generators. This significantly simplifies the model without an accuracy tradeoff in this situation. The diagram shows a single Base Station handling a single Smart Meter for readability, but it can apply to many Base Stations with many Smart Meters per station. The Base Station would simply send packets belonging to every attached meter before holding.
+
+        See: diagrams/
         
     3)  my time unit is seconds
         I had to make my meters stop producing packets after pkt numeber 100000 to make the simulation terminate
