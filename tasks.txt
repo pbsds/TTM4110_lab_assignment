@@ -5,35 +5,62 @@ Task 1:
     2)  todo
         
     3)  my time unit is seconds
+        I had to make my meters stop producing packets after pkt numeber 100000 to make the simulation terminate
         
         num_of_meters := 1000;
             pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
-               100000 |       94999 |       5001 |      8711 |           0.588     0.2768.965&-004     0.110     1.167
-        
+               100000 |       95025 |       4975 |      8711 |           0.588     0.2768.963&-004     0.110     1.167
+               
         num_of_meters := 10000;
             pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
-               100000 |       66549 |      33451 |        88 |          30.337    17.1466.646&-002     0.111    60.409
-        
+               100000 |       95025 |       4975 |        88 |          43.016    24.4567.933&-002     0.111    85.802
+               
         num_of_meters := 100000;
             pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
-               100477 |       15919 |      84558 |        88 |           8.109     4.5863.635&-002     0.111    16.000
-        
-                                   ***********
+               100000 |       95025 |       4975 |        88 |          47.508    27.3118.860&-002     0.111    94.802
 
-                    TITLE       /   (RE)SET/   OBS
-                    pkt_total         0.000 100477
-                    pkt_success       0.000  15919
-                    pkt_failed        0.000  84558
-                    pkt_lt200         0.000     88
+        We can from the information below deduce that the bottleneck must be the servers:
         
+                                  R E S O U R C E S
+                                  *****************
+        TITLE       /   (RE)SET/   OBS/ LIM/ MIN/ NOW/  % USAGE/ AV. WAIT/QMAX
+        C                 0.000  95025    1    0    1    19.659     0.171 3136
+        Servers           0.000  95025    4    0    4    97.705    11.53246212
+
+
+    4)  N_s := 2;
+            num_of_meters := 1000;
+                pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
+                   100000 |       95025 |       4975 |      8711 |           0.588     0.2768.963&-004     0.110     1.167
+            
+            num_of_meters := 2000;
+                pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
+                   100000 |       95025 |       4975 |        88 |          23.064    12.9084.187&-002     0.111    45.802
+                
+            num_of_meters := 4000;
+                pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
+                   100000 |       95025 |       4975 |        88 |          35.534    20.1176.526&-002     0.111    70.802
+
         
-    4)  N_sm \in {1000, 10000, 100000}
         N_s := 4;
+            num_of_meters := 1000;
+                pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
+                   100000 |       95025 |       4975 |     18103 |           0.348     0.1384.481&-004     0.110     0.640
+            
+            num_of_meters := 2000;
+                pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
+                   100000 |       95025 |       4975 |      9118 |           0.585     0.2758.929&-004     0.110     1.128
+
+            num_of_meters := 4000;
+                pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
+                   100000 |       95025 |       4975 |       182 |          11.835     6.4662.098&-002     0.111    23.457
         
+    5)  Packetloss can only happen during the wireless transmission to the BR, which has a 5% chance of happening
+        pkt_failed / pkt_total = 0.04975 closely resemples this in all tests.
+        I believe the lack of variation is because demos doesn't seed it's psuedo random
+        number generator with the system time, it simply sets the seed to 907 (line 3022 in demos.sim)
         
-        
-    5)  
-        
+        *todo: more*
 
 Task 2:
     1)  

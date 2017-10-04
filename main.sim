@@ -14,6 +14,7 @@ BEGIN
         Ref(Bin) finished_packets;
         
         Ref(Res) c_queue, server_queue;
+        Ref(Res) max_packets_allowed;
         
         Entity CLASS BS();
         BEGIN
@@ -28,6 +29,7 @@ BEGIN
                     n := packets_to_create.sample;
                     FOR j:=1 STEP 1 UNTIL n DO ! send packets for this meter ;
                     BEGIN
+                        max_packets_allowed.acquire(1);
                         new Packet("packet", bs_queue).schedule(NOW + (j-1)*(1/mu_w));
                     END;
                 END;
@@ -72,13 +74,13 @@ BEGIN
             Dropped:
                 packets_dropped.update(1);
             Terminate:
-                packets_total.update(1);
                 finished_packets.give(1);
+                packets_total.update(1);
                 ! just let me die ;
+                
         END;
 
         INTEGER index;
-
         
         BEGIN ! set constants;
             p_r := 0.95;
@@ -97,7 +99,7 @@ BEGIN
             lambda_fs := 1; ! unset ;
             
             num_of_BS := 50;
-            num_of_meters := 10000;
+            num_of_meters := 4000;
             meters_per_BS := num_of_meters / num_of_BS;
         END;
         
@@ -124,12 +126,14 @@ BEGIN
             packet_dly_lt_200 :- new Count("pkt_lt200");
             
             c_queue :- new Res("C", 1);
-            server_queue :- new Res("Server", 2);
+            !server_queue :- new Res("Server", 2);
+            server_queue :- new Res("Server", 4);
             !server1_queue :- new Res("Server1", 1);
             !server2_queue :- new Res("Server2", 1);
             !server3_queue :- new Res("Server3", 1);
             
             finished_packets :- new Bin("finished", 0);
+            max_packets_allowed :- new Res("asdasdd", 100000)
         END;
         
         ! initiate the BSs and meters ;
