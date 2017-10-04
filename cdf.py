@@ -18,7 +18,7 @@ for i in occurences.keys():
 
 values = np.cumsum(list(occurences.values()))
 
-plt.hist(delays, bins=100, normed=True, cumulative=True, label='CDF DATA', histtype='step', alpha=0.55, color='purple') # bins and (lognormal / normal) datasets are pre-defined
+plt.hist(delays, bins=100, normed=True, cumulative=True, label='CDF DATA', histtype='step', alpha=0.55, color='purple')
 
 plt.plot(list(occurences.keys()), values)
 

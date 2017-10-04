@@ -110,7 +110,7 @@ BEGIN
             lambda_fs := 1; ! unset ;
             
             num_of_BS := 50;
-            num_of_meters := 100;
+            num_of_meters := 1000;
             meters_per_BS := num_of_meters / num_of_BS;
         END;
         
@@ -143,9 +143,9 @@ BEGIN
             !server3_queue :- new Res("Server3", 1);
             
             finished_packets :- new Bin("finished", 0);
-            max_packets_allowed :- new Res("asdasdd", 100000)
+            max_packets_allowed :- new Res("asdasdd", 100000);
 
-            next_packet_id := 0
+            next_packet_id := 0;
         END;
         
         ! initiate the BSs and meters ;
@@ -156,4 +156,4 @@ BEGIN
         ! simulate packets ;
         finished_packets.take(100000);
     END;
-END
+END;
