@@ -1,7 +1,7 @@
 BEGIN
     EXTERNAL CLASS demos = "../../demos.atr";
     demos BEGIN
-        INTEGER num_of_BS, num_of_meters, meters_per_BS;
+        INTEGER num_of_BS, num_of_meters, meters_per_BS, num_of_servers;
         REAL p_r;
         REAL mu_w, mu_n, mu_c, mu_rc, mu_s, mu_rs, mu_sw;
         REAL lambda, lambda_fc, lambda_fs;
@@ -11,24 +11,24 @@ BEGIN
         
         Ref(Tally) packet_dlys;
         Ref(Count) packets_total, packets_success, packets_dropped, packet_dly_lt_200;
+        Ref(Bin) finished_packets;
         
-        Ref(Res) c_queue, server1_queue, server2_queue, server3_queue;
+        Ref(Res) c_queue, server_queue;
         
         Entity CLASS BS();
         BEGIN
-            REAL n, i, j;
+            INTEGER n, i, j;
             Ref(Res) bs_queue;
+            bs_queue :- new Res("BS", 1);
             LOOP:
-                bs_queue :- new Res("BS", 1);
-                
-                hold(1); ! 1 ms step is maybe a bit much ;
+                hold(1);
                 
                 FOR i:=1 STEP 1 UNTIL meters_per_BS DO ! for each meter DO;
                 BEGIN
                     n := packets_to_create.sample;
                     FOR j:=1 STEP 1 UNTIL n DO ! send packets for this meter ;
                     BEGIN
-                        new Packet("packet", bs_queue).schedule(NOW);
+                        new Packet("packet", bs_queue).schedule(NOW + (j-1)*(1/mu_w));
                     END;
                 END;
             REPEAT;
@@ -57,43 +57,47 @@ BEGIN
             To_server:
                 ! speed of light ;
             In_server:
-                server1_queue.acquire(1);! todo: choose server ;
+                server_queue.acquire(1);! todo: choose server ;
                 hold(t_s.sample);
-                server1_queue.release(1);
+                server_queue.release(1);
                 ! todo: add server fail ;
             Success:
                 dly := TIME - start;
                 
                 packets_success.update(1);
                 packet_dlys.update(dly);
-                IF dly < 200 THEN packet_dly_lt_200.update(1);
+                IF dly < 0.200 THEN packet_dly_lt_200.update(1);
                 
                 GOTO Terminate;
             Dropped:
                 packets_dropped.update(1);
             Terminate:
                 packets_total.update(1);
+                finished_packets.give(1);
                 ! just let me die ;
         END;
+
+        INTEGER index;
+
         
         BEGIN ! set constants;
             p_r := 0.95;
             
-            ! these are in ms ;
-            mu_w  := 110;
-            mu_n  := 20;
-            mu_c  := 0.1;
+            ! these are in seconds ;
+            mu_w  := 1 / 0.110;
+            mu_n  := 1 / 0.020;
+            mu_c  := 1 / 0.0001;
             mu_rc := 1; ! unset ;
-            mu_s  := 2;
+            mu_s  := 1 / 0.002;
             mu_rs := 1; ! unset ;
             mu_sw := 1; ! unset ;
             
-            lambda    := 0.001;! pkt/ms ;
+            lambda    := 1;! pkt/s ;
             lambda_fc := 1; ! unset ;
             lambda_fs := 1; ! unset ;
             
             num_of_BS := 50;
-            num_of_meters := 1000;
+            num_of_meters := 10000;
             meters_per_BS := num_of_meters / num_of_BS;
         END;
         
@@ -103,29 +107,37 @@ BEGIN
             loss :- new Draw("loss", 1 - p_r);
             
             t_w  :- new Constant("T_w", 1/mu_w);
-            t_n  :- new NegExp("T_n",  1/mu_n);
-            t_c  :- new NegExp("T_c",  1/mu_c);
-            t_rc :- new NegExp("T_rc", 1/mu_rc);
-            t_s  :- new NegExp("T_s",  1/mu_s);
-            t_rs :- new NegExp("T_rs", 1/mu_rs);
-            t_sw :- new NegExp("T_sw", 1/mu_sw);
+            t_n  :- new NegExp("T_n",  mu_n);
+            t_c  :- new NegExp("T_c",  mu_c);
+            t_rc :- new NegExp("T_rc", mu_rc);
+            t_s  :- new NegExp("T_s",  mu_s);
+            t_rs :- new NegExp("T_rs", mu_rs);
+            t_sw :- new NegExp("T_sw", mu_sw);
         END;
         
         BEGIN ! define statistics and resources ;
             packet_dlys :- new Tally("pkt_dly");
             
-            packets_total     :- new Count("pkt_tot");
-            packets_success   :- new Count("pkt_suc");
-            packets_dropped   :- new Count("pkt_fail");
-            packet_dly_lt_200 :- new Count("pkt_lt2");
+            packets_total     :- new Count("pkt_total");
+            packets_success   :- new Count("pkt_success");
+            packets_dropped   :- new Count("pkt_failed");
+            packet_dly_lt_200 :- new Count("pkt_lt200");
             
             c_queue :- new Res("C", 1);
-            server1_queue :- new Res("Server1", 1);
-            server2_queue :- new Res("Server2", 1);
-            server3_queue :- new Res("Server3", 1);
+            server_queue :- new Res("Server", 2);
+            !server1_queue :- new Res("Server1", 1);
+            !server2_queue :- new Res("Server2", 1);
+            !server3_queue :- new Res("Server3", 1);
+            
+            finished_packets :- new Bin("finished", 0);
         END;
         
-        ! code here plz ;
+        ! initiate the BSs and meters ;
+        FOR index:=1 STEP 1 UNTIL num_of_BS DO BEGIN
+            NEW BS("BS").schedule(0.0);
+        END;
         
+        ! simulate packets ;
+        finished_packets.take(100000);
     END;
 END
