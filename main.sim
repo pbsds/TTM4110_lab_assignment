@@ -1,7 +1,7 @@
 BEGIN
     EXTERNAL CLASS demos = "../../demos.atr";
     demos BEGIN
-        INTEGER num_of_BS, num_of_meters, meters_per_BS, num_of_servers;
+        INTEGER num_of_BS, num_of_meters, meters_per_BS, num_of_servers, next_packet_id;
         REAL p_r;
         REAL mu_w, mu_n, mu_c, mu_rc, mu_s, mu_rs, mu_sw;
         REAL lambda, lambda_fc, lambda_fs;
@@ -39,7 +39,10 @@ BEGIN
         Entity CLASS Packet(bs_queue);
             Ref(Res) bs_queue;
         BEGIN
+            INTEGER p;
             REAL start, dly;
+            p := next_packet_id;
+            next_packet_id := next_packet_id + 1;
             start := TIME;
             To_bs:
                 IF loss.sample THEN GOTO Dropped;
@@ -70,17 +73,25 @@ BEGIN
                 packet_dlys.update(dly);
                 IF dly < 0.200 THEN packet_dly_lt_200.update(1);
                 
+                outInt(p, 10);
+                outFix(dly, 10, 16);
+                outImage;
+
                 GOTO Terminate;
             Dropped:
                 packets_dropped.update(1);
-            Terminate:
-                finished_packets.give(1);
-                packets_total.update(1);
-                ! just let me die ;
                 
+                outInt(p, 10);
+                outInt(-1, 10);
+                outImage;
+            Terminate:
+                packets_total.update(1);
+                finished_packets.give(1);
+                ! just let me die ;
         END;
 
         INTEGER index;
+
         
         BEGIN ! set constants;
             p_r := 0.95;
@@ -99,7 +110,7 @@ BEGIN
             lambda_fs := 1; ! unset ;
             
             num_of_BS := 50;
-            num_of_meters := 4000;
+            num_of_meters := 1000;
             meters_per_BS := num_of_meters / num_of_BS;
         END;
         
@@ -126,14 +137,15 @@ BEGIN
             packet_dly_lt_200 :- new Count("pkt_lt200");
             
             c_queue :- new Res("C", 1);
-            !server_queue :- new Res("Server", 2);
-            server_queue :- new Res("Server", 4);
+            server_queue :- new Res("Server", 2);
             !server1_queue :- new Res("Server1", 1);
             !server2_queue :- new Res("Server2", 1);
             !server3_queue :- new Res("Server3", 1);
             
             finished_packets :- new Bin("finished", 0);
-            max_packets_allowed :- new Res("asdasdd", 100000)
+            max_packets_allowed :- new Res("asdasdd", 100000);
+
+            next_packet_id := 0;
         END;
         
         ! initiate the BSs and meters ;
@@ -144,4 +156,4 @@ BEGIN
         ! simulate packets ;
         finished_packets.take(100000);
     END;
-END
+END;
