@@ -44,7 +44,7 @@ Task 1:
         Servers           0.000  95025    4    0    4    97.705    11.53246212
 
 
-    4)  N_s := 2;
+    4)  server_queue :- new Res("Server", 2);
             num_of_meters := 1000;
                 pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                    100000 |       95025 |       4975 |      8711 |           0.588     0.2768.963&-004     0.110     1.167
@@ -58,7 +58,7 @@ Task 1:
                    100000 |       95025 |       4975 |        88 |          35.534    20.1176.526&-002     0.111    70.802
 
         
-        N_s := 4;
+        server_queue :- new Res("Server", 4);
             num_of_meters := 1000;
                 pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                    100000 |       95025 |       4975 |     18103 |           0.348     0.1384.481&-004     0.110     0.640
