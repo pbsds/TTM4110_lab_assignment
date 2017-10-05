@@ -79,11 +79,51 @@ Task 1:
         *todo: more*
 
 Task 2:
-    1)  
+    1)  The system state consists of each server and the controller, each as an entity,
+        and the resources "active_controllers", "active_servers" and "active_both".
+        The resources are aquired and held by the entities while they're active
+        and released when they're not. 
+        We read the USAGE statistic on these resources at the final printout.
+        We also ensure QMAX is 1.
         
-    2)  
+    2)  jeg tror det er enklere å vise dette med en interrupt
         
-    3)  
+    3)  Read % USAGE on the resources, se how AV. WAIT and QMAX is 0.000 and 1
+    
+                                CLOCK TIME = 7.200&+006
+        **********************************************************************
+        *                                                                    *
+        *                            R E P O R T                             *
+        *                                                                    *
+        **********************************************************************
+
+
+
+
+                              D I S T R I B U T I O N S
+                              *************************
+
+        TITLE       /   (RE)SET/   OBS/TYPE     /        A/        B/     SEED
+        T_rc              0.000  71802 NEGEXP        2.000            33427485
+        T_rs              0.000 213361 NEGEXP        1.000            22276755
+        T_sw              0.000 144073 NEGEXP        5.000            46847980
+        lambda_fc         0.0007164194 DRAW     1.000&-002            43859043
+
+        "demos.sim", line 146: ./main2: Putint: Text object to short
+        lambda_fs         0.000******* DRAW     1.000&-002            64042082
+
+
+                                  R E S O U R C E S
+                                  *****************
+
+        TITLE       /   (RE)SET/   OBS/ LIM/ MIN/ NOW/  % USAGE/ AV. WAIT/QMAX
+        active_contr      0.000  71801    1    0    0    99.503     0.000    1
+        active_serve      0.000 143334    2    0    0    99.647     0.000    1
+        active_both       0.0007163832    1    0    0    99.498     0.000    1
+
+
         
-    4)  
+        
+    4) 
+
         
