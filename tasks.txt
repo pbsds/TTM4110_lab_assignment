@@ -43,15 +43,15 @@ Task 1:
         enough meters, packet delay increases proportionally to simulation time, as the packet production rate almost 
         always exceeds the servers' processing capability.
         
-                                  R E S O U R C E S
-                                  *****************
-        TITLE       /   (RE)SET/   OBS/ LIM/ MIN/ NOW/  % USAGE/ AV. WAIT/QMAX
-        C                 0.000  95025    1    0    1    19.659     0.171 3136
-        Servers           0.000  95025    4    0    4    97.705    11.53246212
+                                      R E S O U R C E S
+                                      *****************
+
+            TITLE       /   (RE)SET/   OBS/ LIM/ MIN/ NOW/  % USAGE/ AV. WAIT/QMAX
+            C                 0.000  95025    1    0    1     9.943     4.74993633
+            Server            0.000  95025    2    0    2    98.840    42.62785564
 
 
-
-    4)  N_s := 2;
+    4)  server_queue :- new Res("Server", 2);
             num_of_meters := 1000;
                 pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                    100000 |       95025 |       4975 |      8711 |           0.588     0.2768.963&-004     0.110     1.167
@@ -65,7 +65,7 @@ Task 1:
                    100000 |       95025 |       4975 |        88 |          35.534    20.1176.526&-002     0.111    70.802
 
         
-        N_s := 4;
+        server_queue :- new Res("Server", 4);
             num_of_meters := 1000;
                 pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                    100000 |       95025 |       4975 |     18103 |           0.348     0.1384.481&-004     0.110     0.640
@@ -92,11 +92,49 @@ Task 1:
         See: diagrams/CDF-1_5.png
 
 Task 2:
-    1)  
+    1)  The system state consists of each server and the controller, each as an entity,
+        and the resources "active_controllers", "active_servers" and "active_both".
+        The resources are aquired and held by the entities while they're active
+        and released when they're not. 
+        We read the USAGE statistic on these resources at the final printout.
+        We also ensure QMAX is 1.
         
-    2)  
+    2)  jeg tror det er enklere å vise dette med en interrupt
         
-    3)  
+    3)  Read % USAGE on the resources, se how AV. WAIT and QMAX is 0.000 and 1
+    
+                                CLOCK TIME = 7.200&+006
+        **********************************************************************
+        *                                                                    *
+        *                            R E P O R T                             *
+        *                                                                    *
+        **********************************************************************
+
+
+
+
+                              D I S T R I B U T I O N S
+                              *************************
+
+        TITLE       /   (RE)SET/   OBS/TYPE     /        A/        B/     SEED
+        T_rc              0.000  71802 NEGEXP        2.000            33427485
+        T_rs              0.000 213361 NEGEXP        1.000            22276755
+        T_sw              0.000 144073 NEGEXP        5.000            46847980
+        lambda_fc         0.0007164194 DRAW     1.000&-002            43859043
+
+        "demos.sim", line 146: ./main2: Putint: Text object to short
+        lambda_fs         0.000******* DRAW     1.000&-002            64042082
+
+
+                                  R E S O U R C E S
+                                  *****************
+
+        TITLE       /   (RE)SET/   OBS/ LIM/ MIN/ NOW/  % USAGE/ AV. WAIT/QMAX
+        active_contr      0.000  71801    1    0    0    99.503     0.000    1
+        active_serve      0.000 143334    2    0    0    99.647     0.000    1
+        active_both       0.0007163832    1    0    0    99.498     0.000    1
+
         
-    4)  
+    4)  onenote
+        
         

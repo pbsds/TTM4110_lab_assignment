@@ -7,7 +7,7 @@ BEGIN
         Ref(RDist) t_rc, t_rs, t_sw;
         Ref(BDist) do_controller_break, do_server_break;
         
-        Ref(Res) active_controllers, active_servers, active_whole;
+        Ref(Res) active_controllers, active_servers, active_both;
         INTEGER active_servers_goal;
         
         Entity CLASS Controller();
@@ -59,13 +59,13 @@ BEGIN
         BEGIN
             Down:
                 hold(1);
-                IF active_servers.avail = 0 AND active_controllers.avail = 0 THEN GOTO AllActive;
+                IF active_servers.avail <= 1 AND active_controllers.avail = 0 THEN GOTO AllActive;
                 GOTO Down;
             AllActive:
-                active_whole.acquire(1);
+                active_both.acquire(1);
                 hold(1);
-                active_whole.release(1);
-                IF active_servers.avail = 0 AND active_controllers.avail = 0 THEN GOTO AllActive;
+                active_both.release(1);
+                IF active_servers.avail <= 1 AND active_controllers.avail = 0 THEN GOTO AllActive;
                 GOTO Down;
         END;
         
@@ -88,7 +88,7 @@ BEGIN
             
             active_controllers :- new Res("active_controllers", 1);
             active_servers :- new Res("active_servers", 2);
-            active_whole :- new Res("active_whole", 1);
+            active_both :- new Res("active_both", 1);
         END;
         
         NEW Controller("Controller").schedule(NOW);
@@ -98,6 +98,6 @@ BEGIN
         NEW MonitorDaemon("daemon").schedule(NOW);
         
         !hold(1000*60*60*24);
-        hold(1000*60*60*2);
+        hold(1000*60*60*3);
     END;
 END

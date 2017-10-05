@@ -110,7 +110,7 @@ BEGIN
             lambda_fs := 1; ! unset ;
             
             num_of_BS := 50;
-            num_of_meters := 1000;
+            num_of_meters := 100000;
             meters_per_BS := num_of_meters / num_of_BS;
         END;
         
