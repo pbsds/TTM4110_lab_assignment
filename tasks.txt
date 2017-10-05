@@ -15,13 +15,15 @@ Task 1:
         -Packet arrived at server
         -Packet processed in server (success)
         
-    2)  We chose to make the Base Station entity handle packet scheduling instead of
-        creating many Smart Meter entities as generators. This significantly simplifies the model without an accuracy tradeoff in this situation. The diagram shows a single Base Station handling a single Smart Meter for readability, but it can apply to many Base Stations with many Smart Meters per station. The Base Station would simply send packets belonging to every attached meter before holding.
+    2)  We chose to make the Base Station entity handle packet scheduling instead of creating many Smart Meter entities 
+        as generators. This significantly simplifies the model without an accuracy tradeoff in this situation. The 
+        diagram shows a single Base Station handling a single Smart Meter for readability, but it can apply to many 
+        Base Stations with many Smart Meters per station. The Base Station would simply send packets belonging to every 
+        attached meter before holding.
 
-        See: diagrams/
+        See: diagrams/Activity_diagram-1_2.png
         
-    3)  my time unit is seconds
-        I had to make my meters stop producing packets after pkt numeber 100000 to make the simulation terminate
+    3)  The time unit is seconds 
         
         num_of_meters := 1000;
             pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
@@ -35,13 +37,18 @@ Task 1:
             pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                100000 |       95025 |       4975 |        88 |          47.508    27.3118.860&-002     0.111    94.802
 
-        We can from the information below deduce that the bottleneck must be the servers:
+        We had to make our meters stop producing packets after pkt number 100000 to make the simulation terminate
+        As we can see in the information below, the servers are a bottleneck. Because the servers can only process one
+        packet each, adding more meters delays packets as they get queued up and wait for the server to finish. With 
+        enough meters, packet delay increases proportionally to simulation time, as the packet production rate almost 
+        always exceeds the servers' processing capability.
         
                                   R E S O U R C E S
                                   *****************
         TITLE       /   (RE)SET/   OBS/ LIM/ MIN/ NOW/  % USAGE/ AV. WAIT/QMAX
         C                 0.000  95025    1    0    1    19.659     0.171 3136
         Servers           0.000  95025    4    0    4    97.705    11.53246212
+
 
 
     4)  N_s := 2;
@@ -70,13 +77,19 @@ Task 1:
             num_of_meters := 4000;
                 pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                    100000 |       95025 |       4975 |       182 |          11.835     6.4662.098&-002     0.111    23.457
+
+        See: diagrams/Plot-1_4.png
+
+        As we saw in 3), the servers are a bottleneck at high amounts of meters. Doubling the amount of servers lets us
+        run at least twice as many meters before we reach an equivalent bottleneck. You can see this with average delay
+        being about equivalent with 1000 SM at two servers, and 2000 at four.
         
     5)  Packetloss can only happen during the wireless transmission to the BR, which has a 5% chance of happening
         pkt_failed / pkt_total = 0.04975 closely resemples this in all tests.
-        I believe the lack of variation is because demos doesn't seed it's psuedo random
+        I believe the lack of variation is because demos doesn't seed it's pseudo random
         number generator with the system time, it simply sets the seed to 907 (line 3022 in demos.sim)
         
-        *todo: more*
+        See: diagrams/CDF-1_5.png
 
 Task 2:
     1)  
