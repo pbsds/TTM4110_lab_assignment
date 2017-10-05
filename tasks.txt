@@ -37,11 +37,11 @@ Task 1:
             pkt_total | pkt_success | pkt_failed | pkt_lt200 | pkt_dly AVERAGE/EST.ST.DV/ STD.ERR./  MINIMUM/  MAXIMUM
                100000 |       95025 |       4975 |        88 |          47.508    27.3118.860&-002     0.111    94.802
 
-        We had to make our meters stop producing packets after pkt number 100000 to make the simulation terminate
         As we can see in the information below, the servers are a bottleneck. Because the servers can only process one
         packet each, adding more meters delays packets as they get queued up and wait for the server to finish. With 
         enough meters, packet delay increases proportionally to simulation time, as the packet production rate almost 
-        always exceeds the servers' processing capability.
+        always exceeds the servers' processing capability. We had to make our meters stop producing packets after pkt 
+        number 100000 to make the simulation terminate without running out of memory.
         
                                       R E S O U R C E S
                                       *****************
