@@ -111,9 +111,8 @@ Task 2:
           - Server crashes while active, moves to dead state
           
           
-          2)  jeg tror det er enklere å vise dette med en interrupt
-          
-          3)  Read % USAGE on the resources, se how AV. WAIT and QMAX is 0.000 and 1
+    2)  jeg tror det er enklere å vise dette med en interrupt
+    3)  Read % USAGE on the resources, se how AV. WAIT and QMAX is 0.000 and 1
           
           CLOCK TIME = 7.200&+006
           **********************************************************************
@@ -147,7 +146,5 @@ Task 2:
           active_both       0.0007163832    1    0    0    99.498     0.000    1
           
           
-          4)  onenote
+      3)  onenote
           
-          
-          - Server transitioning to active
