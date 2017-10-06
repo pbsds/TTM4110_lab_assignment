@@ -7,7 +7,7 @@ BEGIN
         Ref(RDist) t_rc, t_rs, t_sw;
         Ref(BDist) do_controller_break, do_server_break;
         
-        Ref(Res) active_controllers, active_servers, active_both;
+        Ref(Res) active_controllers, active_servers, active_both, active_one_server;
         INTEGER active_servers_goal;
         
         Entity CLASS Controller();
@@ -59,14 +59,16 @@ BEGIN
         BEGIN
             Down:
                 hold(1);
+            Choice:
+                IF active_servers.avail = 2 AND active_one_server.avail = 0 THEN active_one_server.release(1);
+                IF active_servers.avail < 2 AND active_one_server.avail = 1 THEN active_one_server.acquire(1);
                 IF active_servers.avail <= 1 AND active_controllers.avail = 0 THEN GOTO AllActive;
                 GOTO Down;
             AllActive:
                 active_both.acquire(1);
                 hold(1);
                 active_both.release(1);
-                IF active_servers.avail <= 1 AND active_controllers.avail = 0 THEN GOTO AllActive;
-                GOTO Down;
+                GOTO Choice;
         END;
         
         BEGIN ! constants ;
@@ -89,6 +91,7 @@ BEGIN
             active_controllers :- new Res("active_controllers", 1);
             active_servers :- new Res("active_servers", 2);
             active_both :- new Res("active_both", 1);
+            active_one_server :- new Res("active_one_server", 1);
         END;
         
         NEW Controller("Controller").schedule(NOW);
