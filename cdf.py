@@ -22,4 +22,7 @@ plt.hist(delays, bins=100, normed=True, cumulative=True, label='CDF DATA', histt
 
 plt.plot(list(occurences.keys()), values)
 
+plt.ylabel('Probability')
+plt.xlabel('Delay(s)')
+
 plt.show()
