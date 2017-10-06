@@ -115,7 +115,7 @@ BEGIN
         END;
         
         BEGIN ! define distributions;
-            packets_to_create :- NEW Poisson("pkts_2_make", 1);
+            packets_to_create :- NEW Poisson("pkts_2_make", lambda);
             
             loss :- new Draw("loss", 1 - p_r);
             
